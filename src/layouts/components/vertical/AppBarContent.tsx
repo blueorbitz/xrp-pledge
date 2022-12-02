@@ -16,6 +16,7 @@ import { Settings } from 'src/@core/context/settingsContext'
 // ** Components
 import ModeToggler from 'src/@core/layouts/components/shared-components/ModeToggler'
 import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
+import CreatePledgeAction from 'src/@core/layouts/components/shared-components/CreatePledgeAction'
 
 interface Props {
   hidden: boolean
@@ -56,6 +57,7 @@ const AppBarContent = (props: Props) => {
         />
       </Box>
       <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
+        <CreatePledgeAction />
         <ModeToggler settings={settings} saveSettings={saveSettings} />
         <UserDropdown />
       </Box>
