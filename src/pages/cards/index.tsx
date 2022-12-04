@@ -22,58 +22,58 @@ import CardHorizontalRatings from 'src/views/cards/CardHorizontalRatings'
 const CardBasic = () => {
   return (
     <Grid container spacing={6}>
-      <Grid item xs={12} sx={{ paddingBottom: 4 }}>
+      <Grid key='1' item xs={12} sx={{ paddingBottom: 4 }}>
         <Typography variant='h5'>Basic Cards</Typography>
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid key='2' item xs={12} sm={6} md={4}>
         <CardImgTop />
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid key='3' item xs={12} sm={6} md={4}>
         <CardUser />
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid key='4' item xs={12} sm={6} md={4}>
         <CardWithCollapse />
       </Grid>
-      <Grid item xs={12} sm={6}>
+      <Grid key='5' item xs={12} sm={6}>
         <CardMobile />
       </Grid>
-      <Grid item xs={12} sm={6}>
+      <Grid key='6' item xs={12} sm={6}>
         <CardHorizontalRatings />
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid key='7' item xs={12} sm={6} md={4}>
         <CardAppleWatch />
       </Grid>
-      <Grid item xs={12} md={8}>
+      <Grid key='8' item xs={12} md={8}>
         <CardMembership />
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid key='9' item xs={12} sm={6} md={4}>
         <CardInfluencer />
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid key='10' item xs={12} sm={6} md={4}>
         <CardVerticalRatings />
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid key='11' item xs={12} sm={6} md={4}>
         <CardSupport />
       </Grid>
-      <Grid item xs={12} sx={{ pb: 4, pt: theme => `${theme.spacing(17.5)} !important` }}>
+      <Grid key='12' item xs={12} sx={{ pb: 4, pt: theme => `${theme.spacing(17.5)} !important` }}>
         <Typography variant='h5'>Navigation Cards</Typography>
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid key='13' item xs={12} md={6}>
         <CardNavigation />
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid key='14' item xs={12} md={6}>
         <CardNavigationCenter />
       </Grid>
-      <Grid item xs={12} sx={{ pb: 4, pt: theme => `${theme.spacing(17.5)} !important` }}>
+      <Grid key='15' item xs={12} sx={{ pb: 4, pt: theme => `${theme.spacing(17.5)} !important` }}>
         <Typography variant='h5'>Solid Cards</Typography>
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid key='16' item xs={12} sm={6} md={4}>
         <CardTwitter />
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid key='17' item xs={12} sm={6} md={4}>
         <CardFacebook />
       </Grid>
-      <Grid item xs={12} sm={6} md={4}>
+      <Grid key='18' item xs={12} sm={6} md={4}>
         <CardLinkedIn />
       </Grid>
     </Grid>
