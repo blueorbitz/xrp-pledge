@@ -21,6 +21,7 @@ import ThemeComponent from 'src/@core/theme/ThemeComponent'
 
 // ** Contexts
 import { SettingsConsumer, SettingsProvider } from 'src/@core/context/settingsContext'
+import { XrplNetworkProvider } from 'src/@core/hooks/useXrplNetwork'
 
 // ** Utils Imports
 import { createEmotionCache } from 'src/@core/utils/create-emotion-cache'
@@ -72,13 +73,15 @@ const App = (props: ExtendedAppProps) => {
         <Script src="https://unpkg.com/xrpl@2.0.0/build/xrpl-latest-min.js" />
       </Head>
 
-      <SettingsProvider>
-        <SettingsConsumer>
-          {({ settings }) => {
-            return <ThemeComponent settings={settings}>{getLayout(<Component {...pageProps} />)}</ThemeComponent>
-          }}
-        </SettingsConsumer>
-      </SettingsProvider>
+      <XrplNetworkProvider>
+        <SettingsProvider>
+          <SettingsConsumer>
+            {({ settings }) => {
+              return <ThemeComponent settings={settings}>{getLayout(<Component {...pageProps} />)}</ThemeComponent>
+            }}
+          </SettingsConsumer>
+        </SettingsProvider>
+      </XrplNetworkProvider>
     </CacheProvider>
   )
 }

@@ -17,6 +17,7 @@ import { Settings } from 'src/@core/context/settingsContext'
 import ModeToggler from 'src/@core/layouts/components/shared-components/ModeToggler'
 import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
 import CreatePledgeAction from 'src/@core/layouts/components/shared-components/CreatePledgeAction'
+import { NetworkSelector } from 'src/@core/hooks/useXrplNetwork'
 
 interface Props {
   hidden: boolean
@@ -44,7 +45,7 @@ const AppBarContent = (props: Props) => {
             <Menu />
           </IconButton>
         ) : null}
-        <TextField
+        {/* <TextField
           size='small'
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
           InputProps={{
@@ -54,7 +55,8 @@ const AppBarContent = (props: Props) => {
               </InputAdornment>
             )
           }}
-        />
+        /> */}
+        <NetworkSelector />
       </Box>
       <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
         <CreatePledgeAction />

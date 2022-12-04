@@ -60,7 +60,6 @@ const PledgeModal = ({ openState }: PledgeModalType) => {
     setSignBuyOffer(null)
     setOpen(false)
   }
-
   
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
