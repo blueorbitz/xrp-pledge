@@ -70,9 +70,9 @@ const App = (props: ExtendedAppProps) => {
         />
         <meta name='keywords' content='Material Design, MUI, Admin Template, React Admin Template' />
         <meta name='viewport' content='initial-scale=1, width=device-width' />
-        <Script src="https://unpkg.com/xrpl@2.0.0/build/xrpl-latest-min.js" />
       </Head>
 
+      <Script src='https://unpkg.com/xrpl@2.2.3' />
       <XrplNetworkProvider>
         <SettingsProvider>
           <SettingsConsumer>

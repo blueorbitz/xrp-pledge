@@ -20,6 +20,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "noImplicitAny": false,
     "paths": {
       "apexcharts": [
         "./node_modules/apexcharts-clevision"

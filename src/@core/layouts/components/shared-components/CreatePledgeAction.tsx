@@ -1,6 +1,5 @@
 // ** React Imports
 import React, { useState, FormEvent } from 'react'
-import { useUpdateEffect } from 'usehooks-ts'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -13,7 +12,6 @@ import CardContent from '@mui/material/CardContent'
 import InputAdornment from '@mui/material/InputAdornment'
 
 // ** Custom Components Imports
-import * as xrplHelper from 'src/@core/utils/xrpl-helper'
 import CenterModalWrapper from 'src/@core/styles/libs/react-centermodal'
 import useXrplNetwork from 'src/@core/hooks/useXrplNetwork'
 
@@ -28,8 +26,8 @@ import { Typography } from '@mui/material'
 interface PledgeFormDataType {
   title: { value: string };
   description: { value: string };
-  nftCount: { value: number };
-  nftPrice: { value: number };
+  nftCount: { value: string };
+  nftPrice: { value: string };
   identityUrl: { value: string };
 }
 
@@ -70,11 +68,13 @@ const FormButtons = ({ onClose, submitDisabled = false }: { onClose?: () => void
 
 const CreatePledgeAction = () => {
   // ** States
+  const { getXrplWebsocketUrl } = useXrplNetwork()
   const [open, setOpen] = useState(false)
   const [fileError, setFileError] = useState<string | null>(null)
   const [details, setDetails] = useState<PledgeDetailsType | null>(null)
   const [createdNFT, setCreatedNFT] = useState<boolean>(false)
-  const { network } = useXrplNetwork()
+  const [currentMintIndex, setCurrentMintIndex] = useState<number>(0)
+  const [currentMintMsg, setCurrentMintMsg] = useState<string>('')
 
   // ** Functions
   const handleOpen = () => setOpen(true)
@@ -82,6 +82,8 @@ const CreatePledgeAction = () => {
     setFileError(null)
     setDetails(null)
     setCreatedNFT(false)
+    setCurrentMintIndex(0)
+    setCurrentMintMsg('')
     setOpen(false)
   }
 
@@ -96,8 +98,8 @@ const CreatePledgeAction = () => {
       const details = {
         title: title.value,
         description: description.value,
-        nftCount: nftCount.value,
-        nftPrice: nftPrice.value,
+        nftCount: parseInt(nftCount.value),
+        nftPrice: parseFloat(nftPrice.value) * 1000000, // prince in drops
         identityUrl: identityUrl.value,
       }
 
@@ -126,7 +128,7 @@ const CreatePledgeAction = () => {
 
       setDetails({
         ...details,
-        nftUri: xrplHelper.toHex(cloudinaryData.secure_url),
+        nftUri: window.xrpl.convertStringToHex(cloudinaryData.secure_url),
       })
     } catch (error) {
       console.error(error)
@@ -140,12 +142,137 @@ const CreatePledgeAction = () => {
     const seedToken = seed.value
     setDetails({ ...details, seedToken: seedToken })
 
-    await processNFTTransactions()
+    await processNFTTransactions(seedToken)
   }
 
-  const processNFTTransactions = async () => {
-    // TODO: xrpl mint & create sell offer
+  const processNFTTransactions = async (seedToken: string) => {
+    // BATCH MINT and Create Sell Offer
+    // For details of the implementation, refer example from batch-minting
+    //
+    try {
+      const wallet = window.xrpl.Wallet.fromSeed(seedToken)
+      const client = new window.xrpl.Client(getXrplWebsocketUrl())
+      await client.connect()
 
+      const account_info = await client.request({
+        command: 'account_info',
+        account: wallet.address
+      })
+      // console.log('account_info', account_info)
+
+      const my_sequence = account_info.result.account_data.Sequence
+      const nftokenCount = details?.nftCount || 1
+      // console.log('Sequence Number:', my_sequence, nftokenCount)
+      const ticketTransaction = await client.autofill({
+        TransactionType: 'TicketCreate',
+        Account: wallet.address,
+        TicketCount: nftokenCount,
+        Sequence: my_sequence
+      })
+      // console.log('ticketTransaction', ticketTransaction)
+
+      const signedTransaction = wallet.sign(ticketTransaction)
+      // console.log('signedTransaction', signedTransaction)
+      const tx = await client.submitAndWait(signedTransaction.tx_blob)
+      console.log('TicketCreate:', tx.result.meta.TransactionResult)
+
+      let response = await client.request({
+        command: 'account_objects',
+        account: wallet.address,
+        type: 'ticket'
+      })
+
+      let tickets: string[] = []
+      for (let i = 0; i < nftokenCount; i++) {
+        tickets[i] = response.result.account_objects[i].TicketSequence
+      }
+
+      console.log('Tickets generated, minting NFTTokens')
+
+      setCurrentMintMsg('')
+      const messages: string[] = []
+      const MemoData = window.xrpl.convertStringToHex('XRP Pledge -' + details?.title)
+
+      for (let i = 0; i < nftokenCount; i++) {
+        setCurrentMintIndex(i + 1)
+
+        const mintTransactionBlob = {
+          TransactionType: 'NFTokenMint',
+          Account: wallet.address,
+          URI: details?.nftUri ?? '',
+          Flags: 8,
+          TransferFee: 0,
+          Sequence: 0,
+          TicketSequence: tickets[i],
+          LastLedgerSequence: null,
+          NFTokenTaxon: 0,
+          Memos: [
+            {
+              Memo: {
+                MemoData: MemoData
+              }
+            }
+          ]
+        }
+
+        console.log('mintTransactionBlob', mintTransactionBlob)
+        messages.push(`${i + 1}) TransactionType: ${mintTransactionBlob.TransactionType}`)
+        setCurrentMintMsg(messages.join('\n'))
+
+        const mintTx = await client.submitAndWait(mintTransactionBlob, { wallet: wallet })
+        console.log('minted nft', mintTx)
+        messages.push(`hash: ${mintTx.result.hash}`)
+
+        const nodeWithNFTInfo = mintTx.result.meta.AffectedNodes.find(o => {
+          const LedgerEntryType = 'NFTokenPage'
+          if (o.ModifiedNode && o.ModifiedNode.LedgerEntryType)
+            return o.ModifiedNode.LedgerEntryType === LedgerEntryType
+          else if (o.CreatedNode && o.CreatedNode.LedgerEntryType)
+            return o.CreatedNode.LedgerEntryType === LedgerEntryType
+          else
+            return false
+        })
+
+        const nodeAction = Object.keys(nodeWithNFTInfo)[0]
+        console.log('NFT node', nodeAction, nodeWithNFTInfo)
+
+        let NFTokenIDs: string[] = []
+
+        if (nodeWithNFTInfo[nodeAction].NewFields) {
+          NFTokenIDs = nodeWithNFTInfo[nodeAction].NewFields.NFTokens.map(o => o.NFToken.NFTokenID)
+        }
+        else {
+          const PrevNFTokens = nodeWithNFTInfo[nodeAction].PreviousFields.NFTokens.map(o => o.NFToken.NFTokenID)
+          const FinalNFTokens = nodeWithNFTInfo[nodeAction].FinalFields.NFTokens.map(o => o.NFToken.NFTokenID)
+          const differenceNFTokens = FinalNFTokens.filter(x => !PrevNFTokens.includes(x))
+          console.log('NFTokens', i, tickets[i], { PrevNFTokens, FinalNFTokens, differenceNFTokens })
+          NFTokenIDs = differenceNFTokens
+        }
+        messages.push(`NFTokenID: ${JSON.stringify(NFTokenIDs)}`)
+        setCurrentMintMsg(messages.join('\n'))
+
+        const offerTransactionBlob = {
+          TransactionType: 'NFTokenCreateOffer',
+          Account: wallet.classicAddress,
+          NFTokenID: NFTokenIDs[0],
+          Amount: details?.nftPrice?.toString() ?? '1000000',
+          Flags: 1,
+          Destination: process.env.NEXT_PUBLIC_XRP_BROKER_ADDRESS, // TODO: Insert Broker address (should be from env value)
+        }
+
+        messages.push(`TransactionType: ${offerTransactionBlob.TransactionType}`)
+        setCurrentMintMsg(messages.join('\n'))
+        const offerTx = await client.submitAndWait(offerTransactionBlob, { wallet: wallet })
+        console.log('offerTx', offerTx)
+        messages.push(`hash: ${offerTx.result.hash}`)
+        messages.push(`\n\n`)
+        setCurrentMintMsg(messages.join('\n'))
+      }
+    } catch (error) {
+      console.error('Mint and create sell offer', error)
+    }
+
+    // TODO: store in mongo db
     setCreatedNFT(true)
   }
 
@@ -288,9 +415,22 @@ const CreatePledgeAction = () => {
   const ProcessNFTComponent = () =>
     <Grid container spacing={5}>
       <Grid item xs={12}>
-        <Typography variant='h5'>
-          Minting/CreateSellOffer NFT #1
-        </Typography>
+        {
+          currentMintIndex === 0
+            ? <Typography variant='body1'>
+              Initializing connection and seed informations...
+            </Typography>
+            : <React.Fragment>
+              <Typography variant='subtitle1'>
+                NFT #{currentMintIndex}
+              </Typography>
+              <Box sx={{ maxHeight: 250, overflowY: 'auto' }}>
+                <Typography variant='caption'>
+                  {currentMintMsg}
+                </Typography>
+              </Box>
+            </React.Fragment>
+        }
       </Grid>
     </Grid>
 
@@ -300,6 +440,11 @@ const CreatePledgeAction = () => {
         <Typography variant='body1'>
           All NFT is ready for supporters to pledge!
         </Typography>
+        <Box sx={{ maxHeight: 250, overflowY: 'auto' }}>
+          <Typography variant='caption' sx={{ whiteSpace: 'pre-wrap' }}>
+            {currentMintMsg}
+          </Typography>
+        </Box>
       </Grid>
       <Grid item xs={12}>
         <FormButtons onClose={handleClose} submitDisabled />
