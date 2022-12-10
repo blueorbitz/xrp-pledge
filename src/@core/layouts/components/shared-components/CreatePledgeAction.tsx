@@ -68,7 +68,7 @@ const FormButtons = ({ onClose, submitDisabled = false }: { onClose?: () => void
 
 const CreatePledgeAction = () => {
   // ** States
-  const { getXrplWebsocketUrl } = useXrplNetwork()
+  const { network, getXrplWebsocketUrl } = useXrplNetwork()
   const [open, setOpen] = useState(false)
   const [fileError, setFileError] = useState<string | null>(null)
   const [details, setDetails] = useState<PledgeDetailsType | null>(null)
@@ -276,6 +276,7 @@ const CreatePledgeAction = () => {
       const insertedDbData = await fetch('/api/pledge', {
         method: 'POST',
         body: JSON.stringify({
+          network: network,
           title: details?.title,
           description: details?.description,
           nftCount: details?.nftCount,

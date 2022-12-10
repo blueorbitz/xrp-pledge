@@ -1,34 +1,42 @@
+import { useState, useEffect } from 'react'
+
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 
 // ** Icons Imports
 
 // ** Custom Components Imports
-
-// ** Styled Component Import
-
-// ** Demo Components Imports
+import useXrplNetwork from 'src/@core/hooks/useXrplNetwork'
 import CardPledge from 'src/views/cards/CardPledge'
 
-const PledgeList = [
-  {
-    image: '/images/cards/paper-boat.png',
-    title: 'Popular Uses Of The Internet',
-    short: 'Although cards can support multiple actions, UI controls, and an overflow menu.',
-    details: `I'm a thing. But, like most politicians, he promised more than he could deliver. You won't have
-    time for sleeping, soldier, not with all the bed making you'll be doing. Then we'll go with that
-    data file! Hey, you add a one and two zeros to that or we walk! You're going to do his laundry?
-    I've got to find a way to escape.`
-  }
-]
-
 const Dashboard = () => {
+  const [pledges, setPledges] = useState<any[]>([])
+  const { network } = useXrplNetwork()
+
+  useEffect(() => {
+    (async () => {
+      const data = await fetch('/api/pledge?' + new URLSearchParams({
+        network,
+      }))
+      setPledges(await data.json())
+    })();
+  }, [network])
+
   return (
     <Grid container spacing={6}>
       {
-        PledgeList.map((params, i) =>
+        pledges.length === 0 &&
+        <Grid item>
+          <Typography variant='subtitle1'>
+            No pledge has been created on this network
+          </Typography>
+        </Grid>
+      }
+      {
+        pledges.map(params =>
           <Grid item xs={12} sm={6} md={4}>
-            <CardPledge key={`x${i}`} {...params} />
+            <CardPledge key={`pledge-${params._id}`} {...params} />
           </Grid>
         )
       }

@@ -32,10 +32,15 @@ import * as xrplHelper from 'src/@core/utils/xrpl-helper'
 import CenterModalWrapper from 'src/@core/styles/libs/react-centermodal'
 
 interface CardPledgeType {
+  _id: string
   title: string
-  short: string
-  details: string
-  image: string
+  description: string
+  identityUrl: string
+  nftUri: string
+  owner: string
+  nftCount: number
+  nftPrice: number
+  tokens: string[]
 }
 
 interface PledgeFormDataType {
@@ -46,8 +51,8 @@ interface PledgeModalType {
   openState: [boolean, Dispatch<SetStateAction<boolean>>]
 }
 
-const PledgeModal = ({ openState }: PledgeModalType) => {
-  const [open, setOpen] = openState
+const PledgeModal = (props: PledgeModalType & CardPledgeType) => {
+  const [open, setOpen] = props.openState
   const [signBuyOffer, setSignBuyOffer] = useState<SdkTypes.XummPostPayloadResponse | null>(null)
   const [signSocket, setSignSocket] = useState<WebSocket | null>(null)
 
@@ -60,7 +65,7 @@ const PledgeModal = ({ openState }: PledgeModalType) => {
     setSignBuyOffer(null)
     setOpen(false)
   }
-  
+
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -72,8 +77,8 @@ const PledgeModal = ({ openState }: PledgeModalType) => {
         method: 'POST',
         body: JSON.stringify({
           'TransactionType': 'NFTokenCreateOffer',
-          'Owner': '', // operationalOwnerField.value,
-          'NFTokenID': '', //operationalTokenIdField.value,
+          'Owner': props.owner,
+          'NFTokenID': props.tokens[0],
           'Amount': amountInDrops,
           'Flags': null,
         })
@@ -85,7 +90,7 @@ const PledgeModal = ({ openState }: PledgeModalType) => {
       console.error(error)
     }
   }
-  
+
   useUpdateEffect(() => {
     if (signBuyOffer === null)
       return
@@ -218,6 +223,7 @@ const PledgeModal = ({ openState }: PledgeModalType) => {
 
 const CardPledge = (props: CardPledgeType) => {
   // ** State
+  const shortDescSize = 180
   const pledgeModalState = useState<boolean>(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [collapse, setCollapse] = useState<boolean>(false)
@@ -236,26 +242,34 @@ const CardPledge = (props: CardPledgeType) => {
     pledgeModalState[1](true)
   }
 
+  const flexInBetween = {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  }
+
   return (
     <Card>
-      <CardMedia sx={{ height: '14.5625rem' }} image={props.image} />
+      <CardMedia sx={{ height: '14.5625rem' }} image={props.nftUri} />
       <CardContent>
         <Typography variant='h6' sx={{ marginBottom: 2 }}>
           {props.title}
         </Typography>
+        <Box sx={flexInBetween}>
+          <Typography variant='caption'>
+            {'Available: ' + props.tokens.length + '/' + props.nftCount}
+          </Typography>
+          <Typography variant='caption'>
+            {window.xrpl.dropsToXrp(props.nftPrice) + ' XRP'}
+          </Typography>
+        </Box>
         <Typography variant='body2'>
-          {props.short}
+          {props.description.substring(0, shortDescSize)}
         </Typography>
       </CardContent>
       <CardActions className='card-action-dense'>
-        <Box
-          sx={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}
-        >
+        <Box sx={flexInBetween}>
           <Button onClick={handlePledge}>Pledge</Button>
           <div>
             <IconButton
@@ -268,9 +282,12 @@ const CardPledge = (props: CardPledgeType) => {
             >
               <ShareVariant fontSize='small' />
             </IconButton>
-            <IconButton size='small' onClick={handleCollapse}>
-              {collapse ? <ChevronUp sx={{ fontSize: '1.875rem' }} /> : <ChevronDown sx={{ fontSize: '1.875rem' }} />}
-            </IconButton>
+            {
+              props.description.length > shortDescSize &&
+              <IconButton size='small' onClick={handleCollapse}>
+                {collapse ? <ChevronUp sx={{ fontSize: '1.875rem' }} /> : <ChevronDown sx={{ fontSize: '1.875rem' }} />}
+              </IconButton>
+            }
           </div>
         </Box>
       </CardActions>
@@ -278,11 +295,11 @@ const CardPledge = (props: CardPledgeType) => {
         <Divider sx={{ margin: 0 }} />
         <CardContent>
           <Typography variant='body2'>
-            {props.details}
+            {props.description}
           </Typography>
         </CardContent>
       </Collapse>
-      <PledgeModal openState={pledgeModalState} />
+      <PledgeModal openState={pledgeModalState} {...props} />
     </Card>
   )
 }
