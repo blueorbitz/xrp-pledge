@@ -6,12 +6,20 @@ interface PledgeQueryType {
 }
 
 interface PledgeBodyType {
-
+  title: string
+  description: string
+  nftCount: number
+  nftPrice: number
+  nftUri: string
+  tokens: string[],
+  owner: string,
+  identityUrl: string | undefined,
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
   const method = req.method?.toUpperCase()
   const result = {}
+  console.log('env', process.env.MONGODB_URI)
 
   try {
     switch (method) {

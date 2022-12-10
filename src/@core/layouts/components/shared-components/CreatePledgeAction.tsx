@@ -119,12 +119,12 @@ const CreatePledgeAction = () => {
       }
       formData.append('upload_preset', 'xrp-pledge')
 
-      const cloudinaryData = { secure_url: 'https://www.google.com' }
-      // const cloudinaryData = await fetch('https://api.cloudinary.com/v1_1/dufqxigjz/image/upload', {
-      //   method: 'POST',
-      //   body: formData
-      // }).then(resp => resp.json())
-      // console.log(cloudinaryData.secure_url)
+      // const cloudinaryData = { secure_url: 'https://www.google.com' }
+      const cloudinaryData = await fetch('https://api.cloudinary.com/v1_1/dufqxigjz/image/upload', {
+        method: 'POST',
+        body: formData
+      }).then(resp => resp.json())
+      console.log(cloudinaryData.secure_url)
 
       setDetails({
         ...details,
@@ -150,6 +150,8 @@ const CreatePledgeAction = () => {
     // For details of the implementation, refer example from batch-minting
     //
     try {
+      const CreatedNFTokenIDs: string[] = []
+
       const wallet = window.xrpl.Wallet.fromSeed(seedToken)
       const client = new window.xrpl.Client(getXrplWebsocketUrl())
       await client.connect()
@@ -266,13 +268,30 @@ const CreatePledgeAction = () => {
         console.log('offerTx', offerTx)
         messages.push(`hash: ${offerTx.result.hash}`)
         messages.push(`\n\n`)
+
+        CreatedNFTokenIDs.push(NFTokenIDs[0])
         setCurrentMintMsg(messages.join('\n'))
       }
+
+      const insertedDbData = await fetch('/api/pledge', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: details?.title,
+          description: details?.description,
+          nftCount: details?.nftCount,
+          nftPrice: details?.nftPrice, // prince in drops
+          nftUri: window.xrpl.convertHexToString(details?.nftUri),
+          tokens: CreatedNFTokenIDs,
+          owner: wallet.classicAddress,
+          identityUrl: details?.identityUrl,
+        })
+      }).then(resp => resp.json())
+      console.log('Stored to DB', insertedDbData)
+
     } catch (error) {
       console.error('Mint and create sell offer', error)
     }
 
-    // TODO: store in mongo db
     setCreatedNFT(true)
   }
 
@@ -425,7 +444,7 @@ const CreatePledgeAction = () => {
                 NFT #{currentMintIndex}
               </Typography>
               <Box sx={{ maxHeight: 250, overflowY: 'auto' }}>
-                <Typography variant='caption'>
+                <Typography variant='caption' sx={{ whiteSpace: 'pre-wrap' }}>
                   {currentMintMsg}
                 </Typography>
               </Box>
