@@ -72,7 +72,7 @@ const App = (props: ExtendedAppProps) => {
         <meta name='viewport' content='initial-scale=1, width=device-width' />
       </Head>
 
-      <Script src='https://unpkg.com/xrpl@2.2.3' />
+      <Script src='https://unpkg.com/xrpl@2.2.3' strategy='beforeInteractive'/>
       <XrplNetworkProvider>
         <SettingsProvider>
           <SettingsConsumer>

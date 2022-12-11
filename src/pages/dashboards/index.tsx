@@ -26,19 +26,19 @@ const Dashboard = () => {
   return (
     <ApexChartWrapper>
       <Grid container spacing={6}>
-        <Grid key='1' item xs={12} md={4}>
+        <Grid key='dashboard-01' item xs={12} md={4}>
           <Trophy />
         </Grid>
-        <Grid key='2' item xs={12} md={8}>
+        <Grid key='dashboard-02' item xs={12} md={8}>
           <StatisticsCard />
         </Grid>
-        <Grid key='3' item xs={12} md={6} lg={4}>
+        <Grid key='dashboard-03' item xs={12} md={6} lg={4}>
           <WeeklyOverview />
         </Grid>
-        <Grid key='4' item xs={12} md={6} lg={4}>
+        <Grid key='dashboard-04' item xs={12} md={6} lg={4}>
           <TotalEarning />
         </Grid>
-        <Grid key='5' item xs={12} md={6} lg={4}>
+        <Grid key='dashboard-05' item xs={12} md={6} lg={4}>
           <Grid container spacing={6}>
             <Grid item xs={6}>
               <CardStatisticsVerticalComponent
@@ -84,13 +84,13 @@ const Dashboard = () => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid key='6' item xs={12} md={6} lg={4}>
+        <Grid key='dashboard-06' item xs={12} md={6} lg={4}>
           <SalesByCountries />
         </Grid>
-        <Grid key='7' item xs={12} md={12} lg={8}>
+        <Grid key='dashboard-07' item xs={12} md={12} lg={8}>
           <DepositWithdraw />
         </Grid>
-        <Grid key='8' item xs={12}>
+        <Grid key='dashboard-08' item xs={12}>
           <Table />
         </Grid>
       </Grid>

@@ -35,8 +35,8 @@ const Dashboard = () => {
       }
       {
         pledges.map(params =>
-          <Grid item xs={12} sm={6} md={4}>
-            <CardPledge key={`pledge-${params._id}`} {...params} />
+          <Grid item xs={12} sm={6} md={4} key={`pledge-${params._id}`}>
+            <CardPledge {...params} />
           </Grid>
         )
       }

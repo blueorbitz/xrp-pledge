@@ -273,8 +273,13 @@ const CreatePledgeAction = () => {
         setCurrentMintMsg(messages.join('\n'))
       }
 
+      client.disconnect()
       const insertedDbData = await fetch('/api/pledge', {
         method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           network: network,
           title: details?.title,
@@ -467,7 +472,7 @@ const CreatePledgeAction = () => {
         </Box>
       </Grid>
       <Grid item xs={12}>
-        <FormButtons onClose={handleClose} submitDisabled />
+        <FormButtons onClose={() => location.reload()} submitDisabled />
       </Grid>
     </Grid>
 

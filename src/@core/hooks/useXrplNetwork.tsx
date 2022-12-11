@@ -22,9 +22,20 @@ export const XrplNetworkProvider = (props: React.ComponentProps<any>) => {
     return networkUrl
   }
 
+  const getXrplExplorer = (_network = network) => {
+    let explorerUrl: string = '';
+    switch (_network) {
+      case 'mainnet': explorerUrl = 'https://livenet.xrpl.org'; break;
+      case 'devnet': explorerUrl = 'https://devnet.xrpl.org'; break;
+      default: explorerUrl = 'https://testnet.xrpl.org';
+    }
+    return explorerUrl
+  }
+
   return (
     <XrplNetworkContext.Provider value={{
       getXrplWebsocketUrl,
+      getXrplExplorer,
       network, setNetwork,
     }}>
       {props.children}

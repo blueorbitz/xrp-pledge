@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   try {
     switch (method) {
       case 'POST':
-        res.status(200).send(await createPayload(JSON.parse(req.body)))
+        res.status(200).send(await createPayload(req.body))
         break;
       default:
         res.status(405).send({})
@@ -19,7 +19,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   }
 }
 
-export async function createPayload(payload: SdkTypes.CreatePayload) {
+export async function createPayload(payload: SdkTypes.CreatePayload & { Amount: string | number }) {
+  if (typeof payload.Amount === 'number')
+    payload.Amount = payload.Amount.toString()
+
   const xumm = new XummSdk(process.env.XUMM_API_KEY, process.env.XUMM_API_SECRET)
   const response = await xumm.payload.create(payload, true)
   return response
