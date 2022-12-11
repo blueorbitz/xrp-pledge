@@ -78,7 +78,11 @@ const CardPledge = (props: CardPledgeType) => {
       </CardContent>
       <CardActions className='card-action-dense'>
         <Box sx={flexInBetween}>
-          <Button onClick={handlePledge}>Pledge</Button>
+          {
+            props.tokens.length
+              ? <Button onClick={handlePledge}>Pledge</Button>
+              : <div />
+          }
           <div>
             <IconButton
               id='long-button'
