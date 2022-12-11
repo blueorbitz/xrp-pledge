@@ -21,7 +21,6 @@ interface PledgeBodyType {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
   const method = req.method?.toUpperCase()
-  const result = {}
 
   try {
     switch (method) {
@@ -47,7 +46,7 @@ async function getPledges(query: PledgeQueryType): Promise<any> {
   const client = await connection
   const db = client.db(process.env.MONGODB_DB)
 
-  let limit = query.limit ?? 50
+  const limit = query.limit ?? 50
   delete query.limit
 
   if (query._id)
@@ -67,6 +66,7 @@ async function insertPledge(body: PledgeBodyType): Promise<void> {
   const db = client.db(process.env.MONGODB_DB)
   const result = await db.collection(process.env.MONGODB_COLLECTION)
     .insertOne(body)
+
   return result
 }
 
@@ -83,5 +83,6 @@ async function updatePledge(body: PledgeBodyType): Promise<void> {
 
   const result = await db.collection(process.env.MONGODB_COLLECTION)
     .updateOne(query, { $set: newValues })
+
   return result
 }

@@ -53,7 +53,7 @@ const PledgePage = () => {
       <Typography variant='caption'>{props.description}</Typography>
     </Box>
 
-  const PledgeSingleContent = props => <React.Fragment>
+  const PledgeSingleContent = () => <React.Fragment>
     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
       <Typography variant='h4'>
         {pledge.title} - <small>({pledge.network})</small>

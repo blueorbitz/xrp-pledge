@@ -25,5 +25,6 @@ export async function createPayload(payload: SdkTypes.CreatePayload & { Amount: 
 
   const xumm = new XummSdk(process.env.XUMM_API_KEY, process.env.XUMM_API_SECRET)
   const response = await xumm.payload.create(payload, true)
+
   return response
 }

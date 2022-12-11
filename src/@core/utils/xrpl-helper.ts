@@ -16,11 +16,3 @@ export interface XummSignedEventMessage {
     instruction: string | null,
   }
 }
-
-export function toHex(text: string) {
-  const arr = []
-  for (var i = 0; i < text.length; i++)
-    arr.push((text.charCodeAt(i).toString(16)).slice(-4))
-
-  return arr.join('')
-}

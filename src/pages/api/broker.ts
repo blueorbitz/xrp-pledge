@@ -53,12 +53,15 @@ async function brokerSale(body: BrokerBodyType): Promise<any> {
   const query = { _id: new ObjectId(body.mongoId) }
   const dbData = await db.collection(process.env.MONGODB_COLLECTION)
     .findOne(query)
-  
+
   const tokenId = dbData.tokens.shift()
   const result = await db.collection(process.env.MONGODB_COLLECTION)
-    .updateOne(query, { $set: {
-      tokens: dbData.tokens,
-      sales: [...(dbData.sales ?? []), { tokenId, buyer: body.buyer }]
-    } })
+    .updateOne(query, {
+      $set: {
+        tokens: dbData.tokens,
+        sales: [...(dbData.sales ?? []), { tokenId, buyer: body.buyer }]
+      }
+    })
+
   return result
 }
