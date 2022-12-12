@@ -85,7 +85,7 @@ const PledgePage = () => {
     </Typography>
     <ul>
       {
-        pledge.tokens.map(NFTokenID => <li key={NFTokenID}>
+        (pledge.tokens ?? []).map(NFTokenID => <li key={NFTokenID}>
           <Link href={`${getXrplExplorer(pledge.network)}/nft/${NFTokenID}`} passHref>
             <a>
               <Typography variant='caption'>{NFTokenID}</Typography>
@@ -99,7 +99,7 @@ const PledgePage = () => {
     </Typography>
     <ul>
       {
-        pledge.sales.map((buyer, i) => <li key={`buyer-${i}`}>
+        (pledge.sales ?? []).map((buyer, i) => <li key={`buyer-${i}`}>
           <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'column' }}>
             <Typography variant='subtitle2' sx={{ fontWeight: 600 }}>{buyer.buyer as string}</Typography>
             <Link href={`${getXrplExplorer(pledge.network)}/nft/${buyer.tokenId}`} passHref>

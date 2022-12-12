@@ -29,3 +29,5 @@ Pledge support for any using XRP's NFT as proof of pledge.
 - Search for Pledge.
 - Delete Pledge that is created by the creator.
 - Error Handling for external request.
+- Location aware pledge.
+- Share to social media.
